@@ -17,6 +17,7 @@ import lombok.Data;
 @Data
 public abstract class Packet {
 
+    // 序列化失败的原因：
     //@JSONField(deserialize = false, serialize = false)
     private Byte version = 1;
 
