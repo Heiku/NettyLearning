@@ -4,6 +4,7 @@ import com.heiku.protocol.Packet;
 import com.heiku.protocol.PacketCodeC;
 import com.heiku.protocol.request.LoginRequestPacket;
 import com.heiku.protocol.response.LoginResponsePacket;
+import com.heiku.protocol.response.MessageResponsePacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -48,6 +49,9 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             } else {
                 System.out.println(new Date() + ": 客户端登录失败，原因：" + loginResponsePacket.getReason());
             }
+        }else if (packet instanceof MessageResponsePacket){
+            MessageResponsePacket responsePacket = (MessageResponsePacket) packet;
+            System.out.println(new Date() + ": 收到服务端的消息: " + responsePacket.getMessage());
         }
     }
 }

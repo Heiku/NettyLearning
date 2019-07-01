@@ -3,7 +3,9 @@ package com.heiku.server;
 import com.heiku.protocol.Packet;
 import com.heiku.protocol.PacketCodeC;
 import com.heiku.protocol.request.LoginRequestPacket;
+import com.heiku.protocol.request.MessageRequestPacket;
 import com.heiku.protocol.response.LoginResponsePacket;
+import com.heiku.protocol.response.MessageResponsePacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -19,8 +21,9 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         System.out.println(new Date() + ": 客户端开始登录……");
-        ByteBuf requestByteBuf = (ByteBuf) msg;
 
+        // 获取对应的bytebuf，将其解码成为packet对象
+        ByteBuf requestByteBuf = (ByteBuf) msg;
         Packet packet = PacketCodeC.INSTANCE.decode(requestByteBuf);
 
         if (packet instanceof LoginRequestPacket) {
@@ -40,6 +43,17 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
             // 登录响应
             ByteBuf responseByteBuf = PacketCodeC.INSTANCE.encode(ctx.alloc(), loginResponsePacket);
             ctx.channel().writeAndFlush(responseByteBuf);
+        }else if (packet instanceof MessageRequestPacket){
+
+            // 客户端发送的message packet
+            MessageRequestPacket messageRequestPacket = ((MessageRequestPacket) packet);
+            System.out.println(new Date() + ": 收到客户端消息: " + messageRequestPacket.getMessage());
+
+            MessageResponsePacket messageResponsePacket = new MessageResponsePacket();
+            messageResponsePacket.setMessage("服务端回复【" + messageRequestPacket.getMessage() + "】");
+
+            ByteBuf byteBuf = PacketCodeC.INSTANCE.encode(ctx.alloc(), messageResponsePacket);
+            ctx.channel().writeAndFlush(byteBuf);
         }
     }
 
@@ -50,7 +64,6 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         if (username.equals("heiku") && password.equals("sise")){
             return true;
         }
-
         return false;
     }
 }
