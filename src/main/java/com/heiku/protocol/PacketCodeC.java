@@ -39,11 +39,11 @@ public class PacketCodeC {
     }
 
 
-    public ByteBuf encode(ByteBufAllocator byteBufAllocator, Packet packet){
+    public ByteBuf encode(ByteBuf byteBuf, Packet packet){
         // 1.创建ByteBuf 对象
         // ioBuffer() 方法会返回适配 io 读写相关的内存，它会尽可能创建一个直接内存，直接内存可以理解为不受 jvm 堆管理的内存空间
         //              写到 IO 缓冲区的效果更高
-        ByteBuf byteBuf = byteBufAllocator.ioBuffer();
+        //ByteBuf byteBuf = byteBufAllocator.ioBuffer();
 
         // 2.序列化数据对象
         byte[] bytes = Serializer.DEFAULT.serialize(packet);

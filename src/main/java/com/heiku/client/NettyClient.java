@@ -1,5 +1,9 @@
 package com.heiku.client;
 
+import com.heiku.client.handler.LoginResponseHandler;
+import com.heiku.client.handler.MessageResponseHandler;
+import com.heiku.codec.PacketDecoder;
+import com.heiku.codec.PacketEncoder;
 import com.heiku.protocol.PacketCodeC;
 import com.heiku.protocol.request.MessageRequestPacket;
 import com.heiku.util.LoginUtil;
@@ -41,7 +45,10 @@ public class NettyClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) {
-                        ch.pipeline().addLast(new ClientHandler());
+                        ch.pipeline().addLast(new PacketDecoder());
+                        ch.pipeline().addLast(new LoginResponseHandler());
+                        ch.pipeline().addLast(new MessageResponseHandler());
+                        ch.pipeline().addLast(new PacketEncoder());
                     }
                 });
 
@@ -80,12 +87,11 @@ public class NettyClient {
                    Scanner sc = new Scanner(System.in);
                    String line = sc.nextLine();
 
-                   MessageRequestPacket packet = new MessageRequestPacket();
-                   packet.setMessage(line);
-
                    // alloc() : 返回ByteBufAllocator，用于分配缓冲区
-                   ByteBuf byteBuf = PacketCodeC.INSTANCE.encode(channel.alloc(), packet);
-                   channel.writeAndFlush(byteBuf);
+                   //ByteBuf byteBuf = PacketCodeC.INSTANCE.encode(channel.alloc(), packet);
+                   //channel.writeAndFlush(byteBuf);
+
+                   channel.writeAndFlush(new MessageRequestPacket(line));
                }
            }
         }).start();
