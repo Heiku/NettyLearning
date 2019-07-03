@@ -4,6 +4,7 @@ import com.heiku.client.handler.LoginResponseHandler;
 import com.heiku.client.handler.MessageResponseHandler;
 import com.heiku.codec.PacketDecoder;
 import com.heiku.codec.PacketEncoder;
+import com.heiku.codec.Spliter;
 import com.heiku.protocol.PacketCodeC;
 import com.heiku.protocol.request.MessageRequestPacket;
 import com.heiku.util.LoginUtil;
@@ -45,6 +46,9 @@ public class NettyClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) {
+                        // 添加自定义拆包器
+                        ch.pipeline().addLast(new Spliter());
+
                         ch.pipeline().addLast(new PacketDecoder());
                         ch.pipeline().addLast(new LoginResponseHandler());
                         ch.pipeline().addLast(new MessageResponseHandler());

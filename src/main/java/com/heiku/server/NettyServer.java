@@ -2,6 +2,7 @@ package com.heiku.server;
 
 import com.heiku.codec.PacketDecoder;
 import com.heiku.codec.PacketEncoder;
+import com.heiku.codec.Spliter;
 import com.heiku.server.handler.LoginRequestHandler;
 import com.heiku.server.handler.MessageRequestHandler;
 import io.netty.bootstrap.ServerBootstrap;
@@ -37,6 +38,9 @@ public class NettyServer {
                 .channel(NioServerSocketChannel.class)
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     protected void initChannel(NioSocketChannel ch) {
+                        // 添加自定义拆包器
+                        ch.pipeline().addLast(new Spliter());
+
                         ch.pipeline().addLast(new PacketDecoder());
                         ch.pipeline().addLast(new LoginRequestHandler());
                         ch.pipeline().addLast(new MessageRequestHandler());
