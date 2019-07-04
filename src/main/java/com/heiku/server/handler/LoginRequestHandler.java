@@ -2,6 +2,7 @@ package com.heiku.server.handler;
 
 import com.heiku.protocol.request.LoginRequestPacket;
 import com.heiku.protocol.response.LoginResponsePacket;
+import com.heiku.util.LoginUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -22,6 +23,9 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
         if (valid(loginRequestPacket)) {
             loginResponsePacket.setSuccess(true);
             System.out.println(new Date() + ": 登录成功!");
+
+            // 在channel中记录用户已经登录
+            LoginUtil.markAsLogin(ctx.channel());
         } else {
             loginResponsePacket.setReason("账号密码校验失败");
             loginResponsePacket.setSuccess(false);

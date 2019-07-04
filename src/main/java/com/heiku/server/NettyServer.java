@@ -3,7 +3,7 @@ package com.heiku.server;
 import com.heiku.codec.PacketDecoder;
 import com.heiku.codec.PacketEncoder;
 import com.heiku.codec.Spliter;
-import com.heiku.server.handler.LifeCycleTestHandler;
+import com.heiku.server.handler.AuthHandler;
 import com.heiku.server.handler.LoginRequestHandler;
 import com.heiku.server.handler.MessageRequestHandler;
 import io.netty.bootstrap.ServerBootstrap;
@@ -47,6 +47,10 @@ public class NettyServer {
 
                         ch.pipeline().addLast(new PacketDecoder());
                         ch.pipeline().addLast(new LoginRequestHandler());
+
+                        // 添加热插拔认证处理器
+                        ch.pipeline().addLast(new AuthHandler());
+
                         ch.pipeline().addLast(new MessageRequestHandler());
                         ch.pipeline().addLast(new PacketEncoder());
                     }
