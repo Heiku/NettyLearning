@@ -2,6 +2,9 @@ package com.heiku.server.handler;
 
 import com.heiku.protocol.request.MessageRequestPacket;
 import com.heiku.protocol.response.MessageResponsePacket;
+import com.heiku.session.Session;
+import com.heiku.util.SessionUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -11,12 +14,24 @@ public class MessageRequestHandler extends SimpleChannelInboundHandler<MessageRe
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, MessageRequestPacket messageRequestPacket) throws Exception {
-        // 客户端发送的message packet
+
+        // 1.获取当前的Session信息
+        Session session = SessionUtil.getSession(ctx.channel());
+
+        // 2.构造返回的packet
         MessageResponsePacket messageResponsePacket = new MessageResponsePacket();
+        messageResponsePacket.setFromUserId(session.getUserId());
+        messageResponsePacket.setFromUserName(session.getUsername());
+        messageResponsePacket.setMessage(messageRequestPacket.getMessage());
 
-        System.out.println(new Date() + ": 收到客户端消息: " + messageRequestPacket.getMessage());
-        messageResponsePacket.setMessage("服务端回复【" + messageRequestPacket.getMessage() + "】");
+        // 3.获取接收方的channel
+        Channel channel = SessionUtil.getChannel(messageRequestPacket.getToUserId());
 
-        ctx.channel().writeAndFlush(messageResponsePacket);
+        // 4.发送消息
+        if (channel != null && SessionUtil.hasLogin(channel)) {
+            channel.writeAndFlush(messageResponsePacket);
+        } else {
+            System.err.println("[" + messageRequestPacket.getToUserId() + "]不在线，发送失败！");
+        }
     }
 }

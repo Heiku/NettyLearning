@@ -17,6 +17,12 @@ public class LoginResponsePacket extends Packet {
 
     private String reason;
 
+    // 新增用户ID
+    private String userId;
+
+    // 新增用户名
+    private String userName;
+
     @Override
     public Byte getCommand() {
         return LOGIN_RESPONSE;

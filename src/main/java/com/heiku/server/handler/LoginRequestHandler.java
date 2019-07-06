@@ -2,11 +2,13 @@ package com.heiku.server.handler;
 
 import com.heiku.protocol.request.LoginRequestPacket;
 import com.heiku.protocol.response.LoginResponsePacket;
-import com.heiku.util.LoginUtil;
+import com.heiku.session.Session;
+import com.heiku.util.SessionUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.util.Date;
+import java.util.UUID;
 
 
 /**
@@ -18,14 +20,24 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
     protected void channelRead0(ChannelHandlerContext ctx, LoginRequestPacket loginRequestPacket) throws Exception {
         System.out.println(new Date() + ": 收到客户端登录请求……");
 
+        // 初始化返回登录
         LoginResponsePacket loginResponsePacket = new LoginResponsePacket();
         loginResponsePacket.setVersion(loginRequestPacket.getVersion());
+        loginResponsePacket.setUserName(loginRequestPacket.getUsername());
+
         if (valid(loginRequestPacket)) {
             loginResponsePacket.setSuccess(true);
-            System.out.println(new Date() + ": 登录成功!");
+
+            // 暂时随机生成用户id
+            String userId = randomUserId();
+            loginResponsePacket.setUserId(userId);
+
+            System.out.println("[" + loginRequestPacket.getUsername() + "]登录成功");
 
             // 在channel中记录用户已经登录
-            LoginUtil.markAsLogin(ctx.channel());
+            // 绑定Session Map(session, channel)
+            SessionUtil.bindSession(new Session(userId, loginRequestPacket.getUsername()), ctx.channel());
+
         } else {
             loginResponsePacket.setReason("账号密码校验失败");
             loginResponsePacket.setSuccess(false);
@@ -36,7 +48,23 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
         ctx.channel().writeAndFlush(loginResponsePacket);
     }
 
+    /**
+     * 断开连接取消session绑定
+     *
+     * @param ctx
+     * @throws Exception
+     */
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        SessionUtil.unBindSession(ctx.channel());
+    }
+
     private boolean valid(LoginRequestPacket loginRequestPacket) {
         return true;
+    }
+
+
+    private static String randomUserId(){
+        return UUID.randomUUID().toString().split("-")[0];
     }
 }

@@ -5,8 +5,9 @@ import com.heiku.client.handler.MessageResponseHandler;
 import com.heiku.codec.PacketDecoder;
 import com.heiku.codec.PacketEncoder;
 import com.heiku.codec.Spliter;
+import com.heiku.protocol.request.LoginRequestPacket;
 import com.heiku.protocol.request.MessageRequestPacket;
-import com.heiku.util.LoginUtil;
+import com.heiku.util.SessionUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -79,6 +80,46 @@ public class NettyClient {
     }
 
     private static void startConsoleThread(Channel channel){
+        Scanner sc = new Scanner(System.in);
+        LoginRequestPacket loginRequestPacket = new LoginRequestPacket();
+
+        new Thread(() -> {
+           while (!Thread.interrupted()){
+
+               // 判断channel中是否属于登录状态
+               if (!SessionUtil.hasLogin(channel)) {
+                   System.out.println("请输入用户名登录：");
+
+                   String userName = sc.nextLine();
+                   loginRequestPacket.setUsername(userName);
+                   loginRequestPacket.setPassword("sise");
+
+                   // 发送登录请求数据包
+                   channel.writeAndFlush(loginRequestPacket);
+
+                   // 等待登录处理
+                   waitForLoginResponse();
+               }else {
+                   String toUserId = sc.next();
+                   String message = sc.next();
+
+                   channel.writeAndFlush(new MessageRequestPacket(toUserId, message));
+               }
+           }
+        }).start();
+    }
+
+
+    private static void waitForLoginResponse(){
+        try {
+            Thread.sleep(1000);
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }
+    }
+
+
+    /*private static void startConsoleThread(Channel channel){
         new Thread(() -> {
            while (!Thread.interrupted()){
 
@@ -97,5 +138,5 @@ public class NettyClient {
                }
            }
         }).start();
-    }
+    }*/
 }
