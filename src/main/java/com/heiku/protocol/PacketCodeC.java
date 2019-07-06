@@ -1,7 +1,9 @@
 package com.heiku.protocol;
 
+import com.heiku.protocol.request.CreateGroupRequestPacket;
 import com.heiku.protocol.request.LoginRequestPacket;
 import com.heiku.protocol.request.MessageRequestPacket;
+import com.heiku.protocol.response.CreateGroupResponsePacket;
 import com.heiku.protocol.response.LoginResponsePacket;
 import com.heiku.protocol.response.MessageResponsePacket;
 import com.heiku.serialize.Serializer;
@@ -30,8 +32,15 @@ public class PacketCodeC {
         packetTypeMap = new HashMap<>();
         packetTypeMap.put(LOGIN_REQUEST, LoginRequestPacket.class);
         packetTypeMap.put(LOGIN_RESPONSE, LoginResponsePacket.class);
+
         packetTypeMap.put(MESSAGE_REQUEST, MessageRequestPacket.class);
         packetTypeMap.put(MESSAGE_RESPONSE, MessageResponsePacket.class);
+
+        packetTypeMap.put(LOGOUT_REQUEST, LoginRequestPacket.class);
+        packetTypeMap.put(LOGOUT_RESPONSE, LoginResponsePacket.class);
+
+        packetTypeMap.put(CREATE_GROUP_REQUEST, CreateGroupRequestPacket.class);
+        packetTypeMap.put(CREATE_GROUP_RESPONSE, CreateGroupResponsePacket.class);
 
         serializerMap = new HashMap<>();
         Serializer serializer = new JSONSerializer();

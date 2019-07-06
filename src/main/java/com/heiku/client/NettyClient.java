@@ -1,6 +1,10 @@
 package com.heiku.client;
 
+import com.heiku.client.console.ConsoleCommandManager;
+import com.heiku.client.console.LoginConsoleCommand;
+import com.heiku.client.handler.CreateGroupResponseHandler;
 import com.heiku.client.handler.LoginResponseHandler;
+import com.heiku.client.handler.LogoutResponseHandler;
 import com.heiku.client.handler.MessageResponseHandler;
 import com.heiku.codec.PacketDecoder;
 import com.heiku.codec.PacketEncoder;
@@ -47,10 +51,13 @@ public class NettyClient {
                     public void initChannel(SocketChannel ch) {
                         // 添加自定义拆包器
                         ch.pipeline().addLast(new Spliter());
-
                         ch.pipeline().addLast(new PacketDecoder());
+
                         ch.pipeline().addLast(new LoginResponseHandler());
+                        ch.pipeline().addLast(new LogoutResponseHandler());
                         ch.pipeline().addLast(new MessageResponseHandler());
+                        ch.pipeline().addLast(new CreateGroupResponseHandler());
+
                         ch.pipeline().addLast(new PacketEncoder());
                     }
                 });
@@ -79,7 +86,42 @@ public class NettyClient {
         });
     }
 
+    /**
+     * 开启一个控制台线程
+     *
+     * @param channel
+     */
     private static void startConsoleThread(Channel channel){
+        ConsoleCommandManager consoleCommandManager = new ConsoleCommandManager();
+        LoginConsoleCommand loginConsoleCommand = new LoginConsoleCommand();
+        Scanner scanner = new Scanner(System.in);
+
+        new Thread(() -> {
+            while (!Thread.interrupted()) {
+
+                // 判断channel中是否属于登录状态
+                if (!SessionUtil.hasLogin(channel)) {
+
+                    // 如果为检测到channel中的session，那么调用登录控制台
+                    loginConsoleCommand.exec(scanner, channel);
+                } else {
+
+                    // 否则，根据指令调用相应的控制台
+                    consoleCommandManager.exec(scanner, channel);
+                }
+            }
+        }).start();
+    }
+
+    private static void waitForLoginResponse(){
+        try {
+            Thread.sleep(1000);
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }
+    }
+
+    /*private static void startConsoleThread(Channel channel){
         Scanner sc = new Scanner(System.in);
         LoginRequestPacket loginRequestPacket = new LoginRequestPacket();
 
@@ -107,36 +149,6 @@ public class NettyClient {
                }
            }
         }).start();
-    }
-
-
-    private static void waitForLoginResponse(){
-        try {
-            Thread.sleep(1000);
-        }catch (InterruptedException e){
-            e.printStackTrace();
-        }
-    }
-
-
-    /*private static void startConsoleThread(Channel channel){
-        new Thread(() -> {
-           while (!Thread.interrupted()){
-
-               // 通过channel中的 attribute 判断用户是否登录
-               if (LoginUtil.hasLogin(channel)){
-                   System.out.println("输入消息发送到服务端：");
-
-                   Scanner sc = new Scanner(System.in);
-                   String line = sc.nextLine();
-
-                   // alloc() : 返回ByteBufAllocator，用于分配缓冲区
-                   //ByteBuf byteBuf = PacketCodeC.INSTANCE.encode(channel.alloc(), packet);
-                   //channel.writeAndFlush(byteBuf);
-
-                   channel.writeAndFlush(new MessageRequestPacket(line));
-               }
-           }
-        }).start();
     }*/
+
 }
