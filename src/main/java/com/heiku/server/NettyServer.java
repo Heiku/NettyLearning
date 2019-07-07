@@ -4,10 +4,7 @@ import com.heiku.client.handler.LogoutResponseHandler;
 import com.heiku.codec.PacketDecoder;
 import com.heiku.codec.PacketEncoder;
 import com.heiku.codec.Spliter;
-import com.heiku.server.handler.AuthHandler;
-import com.heiku.server.handler.CreateGroupRequestHandler;
-import com.heiku.server.handler.LoginRequestHandler;
-import com.heiku.server.handler.MessageRequestHandler;
+import com.heiku.server.handler.*;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -59,6 +56,12 @@ public class NettyServer {
 
                         // 创建群聊处理器
                         ch.pipeline().addLast(new CreateGroupRequestHandler());
+                        // 加入群聊请求处理器
+                        ch.pipeline().addLast(new JoinGroupRequestHandler());
+                        // 获取群聊列表请求处理器
+                        ch.pipeline().addLast(new ListGroupMembersRequestHandler());
+                        // 退出群聊请求处理器
+                        ch.pipeline().addLast(new QuitGroupRequestHandler());
 
                         ch.pipeline().addLast(new PacketEncoder());
                     }

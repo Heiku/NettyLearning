@@ -2,6 +2,7 @@ package com.heiku.protocol.response;
 
 import com.heiku.protocol.Packet;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 

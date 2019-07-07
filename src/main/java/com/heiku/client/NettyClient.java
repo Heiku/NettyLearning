@@ -2,10 +2,7 @@ package com.heiku.client;
 
 import com.heiku.client.console.ConsoleCommandManager;
 import com.heiku.client.console.LoginConsoleCommand;
-import com.heiku.client.handler.CreateGroupResponseHandler;
-import com.heiku.client.handler.LoginResponseHandler;
-import com.heiku.client.handler.LogoutResponseHandler;
-import com.heiku.client.handler.MessageResponseHandler;
+import com.heiku.client.handler.*;
 import com.heiku.codec.PacketDecoder;
 import com.heiku.codec.PacketEncoder;
 import com.heiku.codec.Spliter;
@@ -53,10 +50,20 @@ public class NettyClient {
                         ch.pipeline().addLast(new Spliter());
                         ch.pipeline().addLast(new PacketDecoder());
 
+                        // 登录响应处理器
                         ch.pipeline().addLast(new LoginResponseHandler());
+                        // 登出响应处理器
                         ch.pipeline().addLast(new LogoutResponseHandler());
+                        // 消息返回处理器
                         ch.pipeline().addLast(new MessageResponseHandler());
+                        // 创建群聊响应处理器
                         ch.pipeline().addLast(new CreateGroupResponseHandler());
+                        // 加入群聊响应处理器
+                        ch.pipeline().addLast(new JoinGroupResponseHandler());
+                        // 获取成员列表处理器
+                        ch.pipeline().addLast(new ListGroupMembersResponseHandler());
+                        //退出群聊响应处理器
+                        ch.pipeline().addLast(new QuitGroupResponseHandler());
 
                         ch.pipeline().addLast(new PacketEncoder());
                     }

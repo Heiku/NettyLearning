@@ -1,11 +1,7 @@
 package com.heiku.protocol;
 
-import com.heiku.protocol.request.CreateGroupRequestPacket;
-import com.heiku.protocol.request.LoginRequestPacket;
-import com.heiku.protocol.request.MessageRequestPacket;
-import com.heiku.protocol.response.CreateGroupResponsePacket;
-import com.heiku.protocol.response.LoginResponsePacket;
-import com.heiku.protocol.response.MessageResponsePacket;
+import com.heiku.protocol.request.*;
+import com.heiku.protocol.response.*;
 import com.heiku.serialize.Serializer;
 import com.heiku.serialize.impl.JSONSerializer;
 import io.netty.buffer.ByteBuf;
@@ -41,6 +37,15 @@ public class PacketCodeC {
 
         packetTypeMap.put(CREATE_GROUP_REQUEST, CreateGroupRequestPacket.class);
         packetTypeMap.put(CREATE_GROUP_RESPONSE, CreateGroupResponsePacket.class);
+
+        packetTypeMap.put(JOIN_GROUP_REQUEST, JoinGroupRequestPacket.class);
+        packetTypeMap.put(JOIN_GROUP_RESPONSE, JoinGroupResponsePacket.class);
+
+        packetTypeMap.put(LIST_GROUP_MEMBERS_REQUEST, ListGroupMembersRequestPacket.class);
+        packetTypeMap.put(LIST_GROUP_MEMBERS_RESPONSE, ListGroupMembersResponsePacket.class);
+
+        packetTypeMap.put(QUIT_GROUP_REQUEST, QuitGroupRequestPacket.class);
+        packetTypeMap.put(QUIT_GROUP_RESPONSE, QuitGroupResponsePacket.class);
 
         serializerMap = new HashMap<>();
         Serializer serializer = new JSONSerializer();
