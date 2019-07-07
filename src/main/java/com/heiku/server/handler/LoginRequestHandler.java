@@ -4,6 +4,7 @@ import com.heiku.protocol.request.LoginRequestPacket;
 import com.heiku.protocol.response.LoginResponsePacket;
 import com.heiku.session.Session;
 import com.heiku.util.SessionUtil;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -14,7 +15,14 @@ import java.util.UUID;
 /**
  * 具体的登录请求handler
  */
+
+@ChannelHandler.Sharable
 public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginRequestPacket> {
+
+    public static final LoginRequestHandler INSTANCE = new LoginRequestHandler();
+
+    protected LoginRequestHandler() {
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, LoginRequestPacket loginRequestPacket) throws Exception {

@@ -3,6 +3,7 @@ package com.heiku.server.handler;
 import com.heiku.protocol.request.JoinGroupRequestPacket;
 import com.heiku.protocol.response.JoinGroupResponsePacket;
 import com.heiku.util.SessionUtil;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
@@ -11,7 +12,15 @@ import io.netty.channel.group.ChannelGroup;
  * @Author: Heiku
  * @Date: 2019/7/7
  */
+
+@ChannelHandler.Sharable
 public class JoinGroupRequestHandler extends SimpleChannelInboundHandler<JoinGroupRequestPacket> {
+
+    public static final JoinGroupRequestHandler INSTANCE = new JoinGroupRequestHandler();
+
+    private JoinGroupRequestHandler() {
+
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, JoinGroupRequestPacket joinGroupRequestPacket) throws Exception {

@@ -1,6 +1,7 @@
 package com.heiku.server;
 
 import com.heiku.client.handler.LogoutResponseHandler;
+import com.heiku.codec.PacketCodecHandler;
 import com.heiku.codec.PacketDecoder;
 import com.heiku.codec.PacketEncoder;
 import com.heiku.codec.Spliter;
@@ -44,26 +45,14 @@ public class NettyServer {
                         // 添加生命周期处理器
                         //ch.pipeline().addLast(new LifeCycleTestHandler());
 
-                        ch.pipeline().addLast(new PacketDecoder());
-                        ch.pipeline().addLast(new LoginRequestHandler());
-                        ch.pipeline().addLast(new LogoutResponseHandler());
+                        ch.pipeline().addLast(PacketCodecHandler.INSTANCE);
+                        ch.pipeline().addLast(LoginRequestHandler.INSTANCE);
 
                         // 添加热插拔认证处理器
-                        //ch.pipeline().addLast(new AuthHandler());
+                        ch.pipeline().addLast(AuthHandler.INSTANCE);
 
-                        // 客户端一对一消息处理器
-                        ch.pipeline().addLast(new MessageRequestHandler());
-
-                        // 创建群聊处理器
-                        ch.pipeline().addLast(new CreateGroupRequestHandler());
-                        // 加入群聊请求处理器
-                        ch.pipeline().addLast(new JoinGroupRequestHandler());
-                        // 获取群聊列表请求处理器
-                        ch.pipeline().addLast(new ListGroupMembersRequestHandler());
-                        // 退出群聊请求处理器
-                        ch.pipeline().addLast(new QuitGroupRequestHandler());
-
-                        ch.pipeline().addLast(new PacketEncoder());
+                        // im处理器
+                        ch.pipeline().addLast(IMHandler.INSTANCE);
                     }
                 });
 

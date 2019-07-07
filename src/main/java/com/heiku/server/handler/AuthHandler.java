@@ -1,10 +1,18 @@
 package com.heiku.server.handler;
 
 import com.heiku.util.SessionUtil;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
+@ChannelHandler.Sharable
 public class AuthHandler extends ChannelInboundHandlerAdapter {
+
+    public static final AuthHandler INSTANCE = new AuthHandler();
+
+    private AuthHandler() {
+
+    }
 
     /**
      * 如果每次发送消息都经历这样的 用户认证，会导致资源和性能的浪费

@@ -65,6 +65,9 @@ public class NettyClient {
                         //退出群聊响应处理器
                         ch.pipeline().addLast(new QuitGroupResponseHandler());
 
+                        // 群聊响应处理器
+                        ch.pipeline().addLast(new GroupMessageResponseHandler());
+
                         ch.pipeline().addLast(new PacketEncoder());
                     }
                 });
