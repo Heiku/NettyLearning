@@ -6,8 +6,7 @@ import com.heiku.client.handler.*;
 import com.heiku.codec.PacketDecoder;
 import com.heiku.codec.PacketEncoder;
 import com.heiku.codec.Spliter;
-import com.heiku.protocol.request.LoginRequestPacket;
-import com.heiku.protocol.request.MessageRequestPacket;
+import com.heiku.idle.IMIdleStateHandler;
 import com.heiku.util.SessionUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -46,6 +45,9 @@ public class NettyClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) {
+                        // 空闲检测
+                        ch.pipeline().addLast(new IMIdleStateHandler());
+
                         // 添加自定义拆包器
                         ch.pipeline().addLast(new Spliter());
                         ch.pipeline().addLast(new PacketDecoder());
@@ -69,6 +71,9 @@ public class NettyClient {
                         ch.pipeline().addLast(new GroupMessageResponseHandler());
 
                         ch.pipeline().addLast(new PacketEncoder());
+
+                        // 心跳定时器
+                        ch.pipeline().addLast(new HeartBeatTimerHandler());
                     }
                 });
 
