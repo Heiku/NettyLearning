@@ -5,6 +5,7 @@ import com.heiku.codec.PacketCodecHandler;
 import com.heiku.codec.PacketDecoder;
 import com.heiku.codec.PacketEncoder;
 import com.heiku.codec.Spliter;
+import com.heiku.idle.IMIdleStateHandler;
 import com.heiku.server.handler.*;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -39,6 +40,9 @@ public class NettyServer {
                 .channel(NioServerSocketChannel.class)
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     protected void initChannel(NioSocketChannel ch) {
+                        // 空闲检测
+                        ch.pipeline().addLast(new IMIdleStateHandler());
+
                         // 添加自定义拆包器
                         ch.pipeline().addLast(new Spliter());
 
@@ -47,6 +51,9 @@ public class NettyServer {
 
                         ch.pipeline().addLast(PacketCodecHandler.INSTANCE);
                         ch.pipeline().addLast(LoginRequestHandler.INSTANCE);
+
+                        // 心跳请求处理器
+                        ch.pipeline().addLast(HeartBeatRequestHandler.INSTANCE);
 
                         // 添加热插拔认证处理器
                         ch.pipeline().addLast(AuthHandler.INSTANCE);
